@@ -14,7 +14,7 @@ type GeneratedCourse = {
 };
 
 const App: React.FC = () => {
-  const [threadUrl, setThreadUrl] = useState<string>('https://nullshot.ai/jam/example-thread');
+  const [threadUrl, setThreadUrl] = useState<string>('https://nullshot.example/jam/example-thread');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [course, setCourse] = useState<GeneratedCourse | null>(null);
@@ -54,7 +54,7 @@ const App: React.FC = () => {
                 type="text"
                 value={threadUrl}
                 onChange={(e) => setThreadUrl(e.target.value)}
-                placeholder="https_//nullshot.ai/jam/..."
+                placeholder="https_//nullshot.example/jam/..."
                 className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-secondary focus:border-brand-secondary transition-shadow duration-200"
                 disabled={isLoading}
               />
