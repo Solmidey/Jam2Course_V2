@@ -12,7 +12,7 @@ interface CoursePreviewProps {
   };
 }
 
-const CoursePreview: React.FC<CoursePreviewProps> = ({ course }) => {
+const CoursePreviewComponent: React.FC<CoursePreviewProps> = ({ course }) => {
   const { outline, checkpoints, quiz } = course;
 
   return (
@@ -55,5 +55,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course }) => {
     </div>
   );
 };
+
+const CoursePreview = React.memo(CoursePreviewComponent);
 
 export default CoursePreview;

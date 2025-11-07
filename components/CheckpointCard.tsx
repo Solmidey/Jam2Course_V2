@@ -7,42 +7,42 @@ interface CheckpointCardProps {
   checkpoint: CheckpointPlan['checkpoints'][0];
 }
 
-const taskDetails: { [key in CheckpointPlan['checkpoints'][0]['task_type']]: { icon: React.ReactNode; color: string } } = {
+const TASK_DETAILS: Record<CheckpointPlan['checkpoints'][0]['task_type'], { icon: React.ReactNode; color: keyof typeof COLOR_CLASSES }> = {
   Do: {
     icon: <DoIcon />,
-    color: 'blue'
+    color: 'blue',
   },
   Reflect: {
     icon: <ReflectIcon />,
-    color: 'purple'
+    color: 'purple',
   },
   Apply: {
     icon: <ApplyIcon />,
-    color: 'green'
-  }
+    color: 'green',
+  },
 };
 
-const colorClasses = {
-    blue: {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
-        border: 'border-blue-300'
-    },
-    purple: {
-        bg: 'bg-purple-100',
-        text: 'text-purple-800',
-        border: 'border-purple-300'
-    },
-    green: {
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-        border: 'border-green-300'
-    }
-}
+const COLOR_CLASSES = {
+  blue: {
+    bg: 'bg-blue-100',
+    text: 'text-blue-800',
+    border: 'border-blue-300',
+  },
+  purple: {
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+    border: 'border-purple-300',
+  },
+  green: {
+    bg: 'bg-green-100',
+    text: 'text-green-800',
+    border: 'border-green-300',
+  },
+} as const;
 
-const CheckpointCard: React.FC<CheckpointCardProps> = ({ checkpoint }) => {
-  const details = taskDetails[checkpoint.task_type];
-  const colors = colorClasses[details.color as keyof typeof colorClasses];
+const CheckpointCardComponent: React.FC<CheckpointCardProps> = ({ checkpoint }) => {
+  const details = TASK_DETAILS[checkpoint.task_type];
+  const colors = COLOR_CLASSES[details.color];
 
   return (
     <div className={`p-4 rounded-lg border-l-4 ${colors.border} ${colors.bg}`}>
@@ -63,5 +63,7 @@ const CheckpointCard: React.FC<CheckpointCardProps> = ({ checkpoint }) => {
     </div>
   );
 };
+
+const CheckpointCard = React.memo(CheckpointCardComponent);
 
 export default CheckpointCard;
