@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CourseOutline, CheckpointPlan } from '../types';
 import CheckpointCard from './CheckpointCard';
 
@@ -9,7 +9,12 @@ interface ModuleCardProps {
   checkpoints: CheckpointPlan['checkpoints'];
 }
 
-const ModuleCard: React.FC<ModuleCardProps> = ({ module, moduleNumber, checkpoints }) => {
+const ModuleCardComponent: React.FC<ModuleCardProps> = ({ module, moduleNumber, checkpoints }) => {
+  const sortedCheckpoints = useMemo(
+    () => [...checkpoints].sort((a, b) => a.at_minute - b.at_minute),
+    [checkpoints]
+  );
+
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
       <div className="p-6 sm:p-8">
@@ -42,11 +47,11 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, moduleNumber, checkpoin
         </div>
       </div>
       
-      {checkpoints.length > 0 && (
+      {sortedCheckpoints.length > 0 && (
         <div className="bg-gray-50 px-6 sm:px-8 py-6 border-t border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Checkpoints</h3>
           <div className="space-y-4">
-            {checkpoints.map(checkpoint => (
+            {sortedCheckpoints.map(checkpoint => (
               <CheckpointCard key={checkpoint.at_minute} checkpoint={checkpoint} />
             ))}
           </div>
@@ -55,5 +60,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, moduleNumber, checkpoin
     </div>
   );
 };
+
+const ModuleCard = React.memo(ModuleCardComponent);
 
 export default ModuleCard;

@@ -7,7 +7,12 @@ interface QuizSectionProps {
   quiz: Quiz;
 }
 
-const QuizQuestion: React.FC<{ question: Quiz['questions'][0]; questionNumber: number }> = ({ question, questionNumber }) => {
+interface QuizQuestionProps {
+  question: Quiz['questions'][0];
+  questionNumber: number;
+}
+
+const QuizQuestionBase: React.FC<QuizQuestionProps> = ({ question, questionNumber }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
@@ -37,15 +42,17 @@ const QuizQuestion: React.FC<{ question: Quiz['questions'][0]; questionNumber: n
       </p>
       <div className="space-y-3">
         {question.options.map((option, index) => (
-          <div
+          <button
+            type="button"
             key={index}
             onClick={() => handleOptionSelect(index)}
-            className={`flex items-center justify-between p-3 border rounded-lg transition-all duration-200 ${getOptionClasses(index)}`}
+            className={`flex items-center justify-between w-full p-3 border rounded-lg transition-all duration-200 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-secondary disabled:cursor-not-allowed ${getOptionClasses(index)}`}
+            disabled={isAnswered}
           >
             <span>{option}</span>
             {isAnswered && index === question.correct_index && <CheckCircleIcon />}
             {isAnswered && index === selectedOption && index !== question.correct_index && <XCircleIcon />}
-          </div>
+          </button>
         ))}
       </div>
       {isAnswered && question.rationale && (
@@ -57,13 +64,15 @@ const QuizQuestion: React.FC<{ question: Quiz['questions'][0]; questionNumber: n
   );
 };
 
+const QuizQuestion = React.memo(QuizQuestionBase);
 
-const QuizSection: React.FC<QuizSectionProps> = ({ quiz }) => {
+
+const QuizSectionComponent: React.FC<QuizSectionProps> = ({ quiz }) => {
   return (
     <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-200">
       <h2 className="text-3xl font-bold text-gray-800 mb-1">Knowledge Check</h2>
       <p className="text-gray-600 mb-6">Test your understanding of the material with this short quiz.</p>
-      
+
       <div>
         {quiz.questions.map((q, index) => (
           <QuizQuestion key={q.id} question={q} questionNumber={index + 1} />
@@ -72,5 +81,7 @@ const QuizSection: React.FC<QuizSectionProps> = ({ quiz }) => {
     </div>
   );
 };
+
+const QuizSection = React.memo(QuizSectionComponent);
 
 export default QuizSection;

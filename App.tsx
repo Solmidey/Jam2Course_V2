@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { CourseOutline, CheckpointPlan, Quiz } from './types';
 import { generateCourse } from './services/courseGenerator';
 import Header from './components/Header';
@@ -19,8 +19,11 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [course, setCourse] = useState<GeneratedCourse | null>(null);
 
+  const trimmedThreadUrl = useMemo(() => threadUrl.trim(), [threadUrl]);
+  const isGenerateDisabled = isLoading || trimmedThreadUrl.length === 0;
+
   const handleGenerateCourse = useCallback(async () => {
-    if (!threadUrl) {
+    if (!trimmedThreadUrl) {
       setError('Please enter a Jam thread URL.');
       return;
     }
@@ -31,7 +34,7 @@ const App: React.FC = () => {
     try {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const generatedData = generateCourse(threadUrl);
+      const generatedData = generateCourse(trimmedThreadUrl);
       setCourse(generatedData);
     } catch (e) {
       setError('Failed to generate the course. Please try again.');
@@ -39,7 +42,9 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [threadUrl]);
+  }, [trimmedThreadUrl]);
+
+  const shouldShowPlaceholder = !isLoading && !error && !course;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans">
@@ -53,14 +58,21 @@ const App: React.FC = () => {
               <input
                 type="text"
                 value={threadUrl}
-                onChange={(e) => setThreadUrl(e.target.value)}
-                placeholder="https_//nullshot.example/jam/..."
+                onChange={(e) => {
+                  setThreadUrl(e.target.value);
+                  if (error) {
+                    setError(null);
+                  }
+                }}
+                placeholder="https://nullshot.example/jam/..."
                 className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-secondary focus:border-brand-secondary transition-shadow duration-200"
                 disabled={isLoading}
+                aria-label="Jam thread URL"
+                autoComplete="url"
               />
               <button
                 onClick={handleGenerateCourse}
-                disabled={isLoading}
+                disabled={isGenerateDisabled}
                 className="bg-brand-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-brand-dark transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
@@ -83,7 +95,7 @@ const App: React.FC = () => {
               </div>
             )}
             {error && (
-              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center gap-4" role="alert">
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center gap-4" role="alert" aria-live="assertive">
                 <ErrorIcon />
                 <div>
                   <p className="font-bold">An Error Occurred</p>
@@ -92,13 +104,13 @@ const App: React.FC = () => {
               </div>
             )}
             {course && <CoursePreview course={course} />}
-            {!isLoading && !error && !course && (
-                <div className="text-center py-16 px-6 bg-brand-light rounded-2xl border-2 border-dashed border-brand-secondary">
-                    <h3 className="text-xl font-bold text-brand-dark mb-2">Ready to Start Learning?</h3>
-                    <p className="text-brand-dark max-w-xl mx-auto">
-                        Your generated course preview will appear here. Just paste a Jam URL above and click generate to see the magic happen!
-                    </p>
-                </div>
+            {shouldShowPlaceholder && (
+              <div className="text-center py-16 px-6 bg-brand-light rounded-2xl border-2 border-dashed border-brand-secondary">
+                <h3 className="text-xl font-bold text-brand-dark mb-2">Ready to Start Learning?</h3>
+                <p className="text-brand-dark max-w-xl mx-auto">
+                  Your generated course preview will appear here. Just paste a Jam URL above and click generate to see the magic happen!
+                </p>
+              </div>
             )}
           </div>
         </div>
